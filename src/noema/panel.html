@@ -1,0 +1,15 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Noema</title><link rel="stylesheet" href="../noema/panel.css"></head>
+<body><main>
+  <header><img src="../noema/icons/icon-96.png" width="36" height="36" alt=""><strong>Noema</strong></header>
+  <section aria-labelledby="workspace-heading">
+    <span class="eyebrow">BROWSER ACCESS</span><h1 id="workspace-heading">Your workspace. Across the web.</h1>
+    <p>Give Noema a task in chat. Review actions and follow its progress in the same conversation.</p>
+    <p id="connection" role="status">Checking connection…</p>
+    <div class="actions"><button id="open" class="primary">Open Noema</button><button id="stop" hidden>Stop task</button><button id="disconnect" hidden>Disconnect</button></div>
+  </section>
+  <section aria-labelledby="site-heading"><h2 id="site-heading">Site access</h2><p>Noema can work only on sites you allow. You can remove access at any time.</p><p id="current-site" class="site"></p><button id="allow">Allow this site</button><ul id="sites" aria-label="Allowed sites"></ul></section>
+  <p id="error" role="alert"></p>
+  <footer>Tasks use your Noema credits. Detected text is protected before cloud requests. Approvals stay under your control.</footer>
+</main><script type="module" src="../noema/panel.js"></script></body></html>

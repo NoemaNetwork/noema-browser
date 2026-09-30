@@ -1,0 +1,19 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+#noema-controls{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid #ffffff14;background:#181b14;color:#eef0e8;font:12px system-ui;flex-wrap:wrap}
+#noema-controls button{border:1px solid #ffffff24;border-radius:18px;background:#272c21;color:#eef0e8;padding:8px 12px;cursor:pointer;font:inherit;min-height:36px}
+#noema-controls button:hover{background:#363e2d}
+#noema-controls button:focus-visible{outline:2px solid #b7cfa0;outline-offset:2px}
+#noema-controls span{flex-basis:100%;color:#bcc3b5;font-size:11px}
+@media(prefers-reduced-motion:no-preference){#noema-controls button{transition:background-color 140ms ease}}
+:root,:root[data-theme="dark"]{--bg-primary:#0b0d0a;--bg-secondary:#171a14;--bg-tertiary:#24291f;--bg-input:#171a14;--text-primary:#f0f1eb;--text-secondary:#b8b8b8;--text-muted:#969b8e;--accent:#c2d89c;--accent-hover:#d0e4b0;--accent-dim:#c2d89c14;--border:#ffffff14;--radius:18px}
+:root[data-theme="light"]{--bg-primary:#fdfdfb;--bg-secondary:#efefea;--bg-tertiary:#e8e8e1;--bg-input:#fff;--text-primary:#272821;--text-secondary:#56584f;--text-muted:#6c7262;--accent:#4b622d;--accent-hover:#35471f;--accent-dim:#4b622d12;--border:#2728211c}
+body{display:flex;flex-direction:column}#app{flex:1;min-height:0;height:auto}#noema-controls{flex:none;background:var(--bg-primary);color:var(--text-primary);padding:14px 16px;border:0;gap:8px}
+#noema-controls .noema-brand{flex-basis:100%;font:600 26px Georgia,serif;color:var(--text-primary);margin-bottom:4px;letter-spacing:-.7px}
+#noema-controls span:empty{display:none}#header{background:transparent;border:0}#input-area{background:var(--bg-primary);border:0;padding:12px}#input-wrapper{border:1px solid var(--border);border-radius:20px;background:var(--bg-input);padding:8px}
+#btn-send{border-radius:50%;background:var(--accent);color:var(--bg-primary)}#provider-picker-btn{pointer-events:none}.provider-picker-caret{display:none}
+/* Controls without a connected Noema protocol are absent from this build. */
+#btn-mode-dev,#btn-attach,#btn-mic,#btn-settings,#btn-expand,#store-review-prompt,#btn-webgpu-standalone{display:none!important}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+#noema-controls span{color:var(--text-secondary)}

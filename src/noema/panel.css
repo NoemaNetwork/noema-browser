@@ -1,0 +1,29 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+:root { color-scheme: light dark; --bg:#10120d; --card:#191c15; --text:#f3f3ed; --muted:#b6bcae; --line:#ffffff1c; --accent:#c2d89c; --ink:#202717; }
+@media(prefers-color-scheme:light) { :root { --bg:#fafaf7; --card:#f0f1ea; --text:#24271e; --muted:#59604f; --line:#26341728; --accent:#d5e1bc; --ink:#27341a; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 system-ui,sans-serif; }
+main { max-width:520px; margin:auto; padding:20px 16px; }
+header { display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+header img { border-radius:8px; }
+header strong { font:700 32px/1 Georgia,serif; letter-spacing:-1px; }
+section { padding:20px; margin:0 0 16px; border:1px solid var(--line); background:var(--card); border-radius:22px; }
+h1 { font:500 27px/1.2 Georgia,serif; letter-spacing:-.5px; margin:10px 0 14px; }
+h2 { font-size:15px; font-weight:600; margin:0 0 8px; }
+p { margin:0 0 16px; color:var(--muted); overflow-wrap:anywhere; }
+.eyebrow { font-size:10px; letter-spacing:1.5px; color:var(--muted); }
+.actions { display:flex; flex-wrap:wrap; gap:8px; }
+button { min-height:42px; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:transparent; color:var(--text); font:500 13px/1.3 system-ui; cursor:pointer; }
+button.primary { color:var(--ink); background:var(--accent); border-color:transparent; }
+button:disabled { opacity:.5; cursor:default; }
+button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+button:hover:not(:disabled) { filter:brightness(1.12); }
+.site { font-size:12px; margin-bottom:10px; }
+#connection { font-size:12px; }
+ul { list-style:none; padding:0; margin:16px 0 0; }
+li { display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid var(--line); padding:12px 0 0; margin-top:12px; }
+li span { min-width:0; font-size:12px; overflow-wrap:anywhere; }
+li button { flex:none; padding:8px; }
+footer { padding:0 8px; color:var(--muted); font-size:11px; }
+[hidden] { display:none!important; }
+@media(prefers-reduced-motion:no-preference) { button { transition:filter 140ms ease,background 140ms ease; } }
