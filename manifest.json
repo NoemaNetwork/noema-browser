@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Noema",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Work across the web with your Noema workspace, reviewed actions and local controls.",
   "permissions": [
     "sidePanel",

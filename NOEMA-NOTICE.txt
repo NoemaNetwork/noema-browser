@@ -1,3 +1,5 @@
 Noema browser extension, modified from WebBrain 1e2dcf6e6ec5513f82b0b8a070860063a29f467f. GPL-3.0-or-later. Upstream copyright and third-party notices retained. Private Noema application and backend sources are not part of this package.
 
 2026-09-30 source distribution changes by Noema: omitted unused standalone subscription-login implementation, simplified its dormant settings label, removed ancillary metadata from four bundled icons, and added standalone documentation, tests and integrity checks. The active Noema adapters and permission controls are unchanged.
+
+2026-10-01 changes by Noema: bounded task turns and repeated navigation, clearer incomplete-task handling, and task-result guidance. Permission, protection and local controls retained.
