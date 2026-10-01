@@ -86,3 +86,14 @@ test('a replaced app document cannot retain authority and failed cleanup cannot 
  runtime.registerWorkspaceDriver({clear:async()=>{throw Error('cleanup failed');}});
  assert((await sendApp('disconnect')).error);assert.equal(store.noemaPair,undefined);assert.equal(store.noemaTaskTab,undefined);
 });
+
+test('task turns and repeated navigation are bounded without replaying a page action',async()=>{
+ store.noemaWorkspaceTask={id:'task',tabId:2};store.noemaTaskTurns={id:'task',count:0,navigation:[]};
+ for(let i=0;i<24;i++)await runtime.boundTaskTurn();
+ await assert.rejects(runtime.boundTaskTurn(),/step limit/);
+ store.noemaTaskTurns={id:'task',count:0,navigation:[]};
+ const nav=url=>[{function:{name:'navigate',arguments:JSON.stringify({url})}}];
+ for(let i=0;i<5;i++)await runtime.boundTaskTurn(nav(i%2?'https://one.test':'https://two.test'));
+ await assert.rejects(runtime.boundTaskTurn(nav('https://one.test')),/repeating navigation/);
+ store.noemaTaskTurns.id='another';await assert.rejects(runtime.boundTaskTurn(),/interrupted/);
+});
