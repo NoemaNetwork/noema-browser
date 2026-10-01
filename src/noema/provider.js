@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import { BaseLLMProvider } from '../providers/base.js';
-import { bridgeRequest, pairState, TOOL_NAMES, assertObservation } from './runtime.js';
+import { bridgeRequest, pairState, TOOL_NAMES, assertObservation, boundTaskTurn } from './runtime.js';
 export class NoemaProvider extends BaseLLMProvider {
     get name() { return 'Noema'; }
     get supportsTools() { return true; }
@@ -10,12 +10,13 @@ export class NoemaProvider extends BaseLLMProvider {
     async testConnection() { return { ok: !!(await pairState()), model: 'Noema Router', error: 'Connect Noema to start.' }; }
     async chat(messages, options = {}) {
         await assertObservation();
-        const input = { messages: messages.map(m => ({
+        await boundTaskTurn();
+        const input = { messages: [{role:'system',content:'Complete the requested browser task and return the requested deliverable, not an acknowledgement or a promise. For comparisons, collect each source once, keep facts in scratchpad, and return a table with source URLs. Call done with a substantive summary and honest outcome. Never claim success if an answer or action is missing. Stop rather than repeating navigation.'}, ...messages.map(m => ({
                 role: m.role,
                 content: Array.isArray(m.content) ? m.content.map(p => { if (p.type !== 'text')
                     throw Error('Image observations are not enabled.'); return p.text; }).join('\n') : m.content ?? null,
                 ...(m.tool_calls ? { tool_calls: m.tool_calls } : {}), ...(m.tool_call_id ? { tool_call_id: m.tool_call_id } : {})
-            })),
+            }))],
             max_tokens: Math.min(options.maxTokens || 4096, 4096),
             ...(options.tools?.length ? { tools: options.tools.filter(t => TOOL_NAMES.has(t.function?.name)), tool_choice: 'auto' } : {}),
             ...(typeof options.temperature === 'number' ? { temperature: options.temperature } : {}) };
@@ -23,6 +24,7 @@ export class NoemaProvider extends BaseLLMProvider {
         const message = result?.choices?.[0]?.message;
         if (!message)
             throw Error('Noema returned an incomplete response.');
+        if (message.tool_calls?.length) await boundTaskTurn(message.tool_calls);
         return { content: message.content || '', toolCalls: message.tool_calls || null, usage: result.usage, finishReason: result.choices[0].finish_reason, raw: result };
     }
 }

@@ -36,7 +36,7 @@ export async function pairState() {
 async function revoke() {
     const task = (await chrome.storage.session.get('noemaWorkspaceTask')).noemaWorkspaceTask;
     // Invalidate authority before awaiting shutdown, even if cleanup fails.
-    await chrome.storage.session.remove(['noemaWorkspaceTask', 'noemaWorkspaceIds', 'noemaPair', 'noemaTaskTab']);
+    await chrome.storage.session.remove(['noemaWorkspaceTask', 'noemaWorkspaceIds', 'noemaPair', 'noemaTaskTab', 'noemaTaskTurns']);
     await chrome.alarms?.clear('noema-pair-expiry');
     observation = undefined;
     for (const p of pending.values())
@@ -52,8 +52,8 @@ export async function bridgeRequest(type, payload, signal) {
     const id = crypto.randomUUID();
     return new Promise((resolve, reject) => {
         const cleanup = () => { clearTimeout(timer); signal?.removeEventListener('abort', abort); pending.delete(id); };
-        const abort = () => { cleanup(); void chrome.tabs.sendMessage(pair.tabId, { target: 'noema-app', type: 'cancel', pairId: pair.id, id }).catch(() => { }); reject(Error('Stopped by user.')); };
-        const timer = setTimeout(abort, 90000);
+        const abort = (timedOut = false) => { cleanup(); void chrome.tabs.sendMessage(pair.tabId, { target: 'noema-app', type: 'cancel', pairId: pair.id, id }).catch(() => { }); reject(Error(timedOut === true ? 'The browser step timed out. Check the page before starting another task.' : 'Stopped by user.')); };
+        const timer = setTimeout(() => abort(true), 90000);
         pending.set(id, { pairId: pair.id, resolve: v => { cleanup(); resolve(v); }, reject: e => { cleanup(); reject(e); } });
         signal?.addEventListener('abort', abort, { once: true });
         if (signal?.aborted) {
@@ -62,6 +62,20 @@ export async function bridgeRequest(type, payload, signal) {
         }
         chrome.tabs.sendMessage(pair.tabId, { target: 'noema-app', type, pairId: pair.id, id, ...payload }).catch(() => { cleanup(); reject(Error('Noema is unavailable. Reconnect before continuing.')); });
     });
+}
+export async function boundTaskTurn(calls = []) {
+    const values = await chrome.storage.session.get(['noemaWorkspaceTask', 'noemaTaskTurns']);
+    const task = values.noemaWorkspaceTask, turns = values.noemaTaskTurns;
+    if (!task || !turns || task.id !== turns.id) throw Error('Browser task interrupted. Start a new task.');
+    if (!calls.length && ++turns.count > 24) throw Error('The browser task reached its step limit. Check the page before starting another task.');
+    for (const call of calls) {
+        if (call.function?.name !== 'navigate') continue;
+        const url = JSON.parse(call.function.arguments).url;
+        if (typeof url !== 'string') continue;
+        turns.navigation.push(url); turns.navigation = turns.navigation.slice(-6);
+        if (turns.navigation.length === 6 && new Set(turns.navigation).size <= 2) throw Error('The model is repeating navigation without completing the task. No further actions were run. Check the page before starting again.');
+    }
+    await chrome.storage.session.set({ noemaTaskTurns: turns });
 }
 export async function assertSite(tabId, url) {
     const tab = await chrome.tabs.get(tabId), target = new URL(url || tab.url);
@@ -91,7 +105,7 @@ export async function startTask(tabId, requestId) {
     const task = (await chrome.storage.session.get('noemaWorkspaceTask')).noemaWorkspaceTask;
     if (pair.workspace && (!task || task.tabId !== tabId || task.id !== requestId))
         throw Error('Start browser tasks from your Noema conversation.');
-    await chrome.storage.session.set({ noemaTaskTab: tabId });
+    await chrome.storage.session.set({ noemaTaskTab: tabId, noemaTaskTurns: { id: requestId, count: 0, navigation: [] } });
     const site = await assertObservation();
     await chrome.scripting.executeScript({ target: { tabId }, files: CONTENT });
     return site;
@@ -243,7 +257,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
             if (msg.type === 'workspace-stop') { await workspaceDriver.stop(task.tabId); return { ok: true }; }
             if (msg.type === 'workspace-finish') {
                 await workspaceDriver.clear?.(task.tabId);
-                await chrome.storage.session.remove('noemaWorkspaceTask');
+                await chrome.storage.session.remove(['noemaWorkspaceTask', 'noemaTaskTurns', 'noemaTaskTab']);
                 return { ok: true };
             }
             if (msg.type === 'workspace-answer') {
